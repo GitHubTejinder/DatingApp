@@ -10,7 +10,7 @@
   <div class="row">
     <div class="col-sm-4">
       <div class="card">
-        <img src="{{user.photoUrl}}" alt="{{user.knownAs}}" class="card-img-top img-thumbnail">
+        <img src="{{photoUrl}}" alt="{{user.knownAs}}" class="card-img-top img-thumbnail">
         <div class="card-body">
           <div>
             <strong>Location:</strong>
@@ -58,7 +58,7 @@
             </form>
           </tab>
           <tab heading="Edit Photos">
-            <p>Edit Photos will go here.</p>
+            <app-photo-editor [photos]="user.photos" (getMainPhoto)="updateMainPhoto($event)"></app-photo-editor>
           </tab>
         </tabset>
       </div>
