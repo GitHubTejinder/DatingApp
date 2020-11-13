@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { Message } from '../_models/message';
 import { PaginationResult } from '../_models/pagination';
 import { User } from '../_models/user';
 
@@ -69,5 +70,44 @@ export class UserService {
 
   sendLike(userId: number, recipientId: number) {
     return this.http.post(this.baseURL + 'users/' + userId + '/like/' + recipientId, {});
+  }
+
+  getMessages(id: number, pageNumber?, pageSize?, messageContainer?): Observable<PaginationResult<Message[]>>{
+    const paginationResult: PaginationResult<Message[]> = new PaginationResult<Message[]>();
+    let params = new HttpParams();
+    if (pageNumber != null){
+      params = params.append('pageNumber', pageNumber);
+    }
+    if (pageSize != null){
+      params = params.append('pageSize', pageSize);
+    }
+
+    params = params.append('messageContainer', messageContainer);
+
+    return this.http.get<Message[]>(this.baseURL + 'users/' + id + '/messages', {observe: 'response', params}).pipe(
+      map(response => {
+        paginationResult.result = response.body;
+        if (response.headers.get('Pagination') != null){
+          paginationResult.pagination = JSON.parse(response.headers.get('Pagination'))
+        }
+        return paginationResult;
+      })
+    );
+  }
+
+  getMessageThread(id: number, recipientId: number){
+    return this.http.get<Message[]>(this.baseURL + 'users/' + id + '/messages/thread/' + recipientId);
+  }
+
+  sendMessage(id: number, message: Message){
+    return this.http.post(this.baseURL + 'users/' + id + '/messages', message);
+  }
+
+  deleteMessage(messageId: number, userId: number){
+    return this.http.post(this.baseURL + 'users/' + userId + '/messages/' + messageId, {});
+  }
+
+  markAsRead(userId: number, messageId: number){
+    return this.http.post(this.baseURL + 'users/' + userId + '/messages/' + messageId + '/read', {}).subscribe();
   }
 }
